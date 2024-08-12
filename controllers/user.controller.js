@@ -6,19 +6,16 @@ const registerUser = async (req, res) => {
         const { firstname, lastname, email, password, confirmPassword } = req.body;
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
+            return res.status(400).json({ type: 'warning', message: 'Passwords do not match' });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+            return res.status(409).json({ type: 'warning', message: 'User already exists' });
         }
 
-        // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user
         const user = new User({
             firstname,
             lastname,
@@ -26,15 +23,12 @@ const registerUser = async (req, res) => {
             password: hashedPassword
         });
 
-        // Save the user to the database
         const newUser = await user.save();
         console.log(newUser);
 
-        // Set success alert and redirect to dashboard
-        req.session.alert = { type: 'success', message: 'Registration successful!' };
-        res.redirect('/dashboard');
+        res.status(201).json({ type: 'success', message: 'Registration successful!', user: newUser });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ type: 'error', message: 'An error occurred during registration' });
     }
 };
 
@@ -43,29 +37,44 @@ const loginUser = async (req, res) => {
         const { email, password } = req.body;
         console.log(`Login request received with email: ${email}`);
 
-        // Check if user exists
         const user = await User.findOne({ email });
         console.log(`User found: ${user}`);
         if (!user) {
-            return res.render('login', { alert: { type: 'warning', message: 'Invalid email or password' } });
+            return res.status(401).json({ type: 'warning', message: 'Invalid email or password' });
         }
 
-        // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         console.log(`Password comparison result: ${isMatch}`);
         if (!isMatch) {
-            return res.render('login', { alert: { type: 'warning', message: 'Invalid email or password' } });
+            return res.status(401).json({ type: 'warning', message: 'Invalid email or password' });
         }
 
-        // Set success alert and redirect to dashboard
-        req.session.alert = { type: 'success', message: 'Login successful!' };
-        res.redirect('/dashboard');
+        res.status(200).json({ type: 'success', message: 'Login successful!', user: user });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ type: 'error', message: 'An error occurred during login' });
     }
 };
 
+const logoutUser = (req, res) => {
+    if (req.session) {
+      req.session.destroy(err => {
+        if (err) {
+          console.error('Error destroying session:', err);
+          return res.status(500).json({ message: 'Error logging out' });
+        }
+        res.clearCookie('connect.sid'); // clear the session cookie
+        return res.status(200).json({ message: 'Logged out successfully' });
+      });
+    } else {
+      // If there's no session, just send a success response
+      return res.status(200).json({ message: 'Logged out successfully' });
+    }
+  };
+  
+
+
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 };
