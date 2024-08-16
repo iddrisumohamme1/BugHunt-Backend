@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user.models');
+const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
     try {
@@ -26,11 +27,24 @@ const registerUser = async (req, res) => {
         const newUser = await user.save();
         console.log(newUser);
 
-        res.status(201).json({ type: 'success', message: 'Registration successful!', user: newUser });
+        const token = jwt.sign(
+            { userId: newUser._id, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.status(201).json({ 
+            type: 'success', 
+            message: 'Registration successful!', 
+            user: newUser,
+            token: token
+        });
     } catch (error) {
         res.status(500).json({ type: 'error', message: 'An error occurred during registration' });
     }
 };
+
+
 
 const loginUser = async (req, res) => {
     try {
@@ -49,11 +63,24 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ type: 'warning', message: 'Invalid email or password' });
         }
 
-        res.status(200).json({ type: 'success', message: 'Login successful!', user: user });
+        const token = jwt.sign(
+            { userId: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+            
+        );console.log('Generated token:', token);
+
+        res.status(200).json({ 
+            type: 'success', 
+            message: 'Login successful!', 
+            user: user,
+            token: token
+        });
     } catch (error) {
         res.status(500).json({ type: 'error', message: 'An error occurred during login' });
     }
 };
+
 
 const logoutUser = (req, res) => {
     if (req.session) {

@@ -1,21 +1,10 @@
 const mongoose = require('mongoose');
 
-const commentSchema = new mongoose.Schema({
-    message: {
-        type: String,
-        required: true
-    },
-    author: {
-        type: String,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
-
 const bugSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
     description: {
         type: String,
         required: true
@@ -26,7 +15,7 @@ const bugSchema = new mongoose.Schema({
     },
     assignee: {
         type: String,
-        required: true
+        default: 'Unassigned'
     },
     status: {
         type: String,
@@ -36,8 +25,7 @@ const bugSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    comments: [commentSchema]  // Adding comments as an array of subdocuments
+    }
 });
 
 module.exports = mongoose.model('Bug', bugSchema);
