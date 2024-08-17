@@ -4,6 +4,6 @@ const { reportchart } = require('../controllers/reportchart.controller.js');
 const authenticateJWT = require('../middleware/authenticateJWT.js');
 
 
-router.get('/',reportchart)
+router.get('/',authenticateJWT,reportchart)
 
 module.exports = router;

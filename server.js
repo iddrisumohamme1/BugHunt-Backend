@@ -45,6 +45,12 @@ app.use('/api/users', userRouter);
 const  reportchartRouter = require('./routes/reportchart.route.js'); 
 app.use('/api/reportchart', reportchartRouter);
 
+const  userdataRouter = require('./routes/userdata.route.js'); 
+app.use('/api/userdata', userdataRouter);
+
+
+
+
 // Database connection
 ////*mongoose.connect("mongodb+srv://iddrisumohamme1:ZcBkWy7IjDar5s8L@bughuntdb.gruv4iz.mongodb.net/BugHuntDB?retryWrites=true&w=majority&appName=BugHuntDB")*/
 mongoose.connect(process.env.DATABASES_URL)

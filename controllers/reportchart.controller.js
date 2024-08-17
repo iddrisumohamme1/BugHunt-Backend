@@ -46,13 +46,12 @@ const mongoose = require('mongoose');
 
 const reportchart =async (req, res) => {
   try {
-    const { reporter } = req.params;
     const currentYear = new Date().getFullYear();
     const startDate = new Date(currentYear, 0, 1);
     const endDate = new Date(currentYear, 11, 31);
 
     const bugs = await Bug.find({
-      reporter: reporter,
+      reporter: req.user.email, // Fetch data based on the logged-in user's email
       createdAt: { $gte: startDate, $lte: endDate }
     });
 
@@ -69,15 +68,15 @@ const reportchart =async (req, res) => {
     const chartData = {
       series: [
         {
-          name: 'Reported Bugs',
-          data: monthlyData.map(m => m.reported)
-        },
-        {
           name: 'Closed Bugs',
           data: monthlyData.map(m => m.closed)
+        },
+        {
+          name: 'Reported Bugs',
+          data: monthlyData.map(m => m.reported)
         }
       ],
-      categories: Array(12).fill().map((_, index) => 
+      categories: monthlyData.map((_, index) => 
         new Date(currentYear, index, 1).toISOString()
       )
     };
@@ -88,7 +87,6 @@ const reportchart =async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
 
 module.exports = {
   reportchart
