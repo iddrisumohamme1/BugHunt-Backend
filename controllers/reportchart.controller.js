@@ -1,7 +1,7 @@
 const Bug = require('../models/bug.models.js');
 const mongoose = require('mongoose');
 
-/*const reportchartall =  async (req, res) => {
+const reportchartAdmin =  async (req, res) => {
   try {
     const currentYear = new Date().getFullYear();
     const startDate = new Date(currentYear, 0, 1);
@@ -42,7 +42,7 @@ const mongoose = require('mongoose');
     console.error('Error fetching chart data:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-}; */
+}; 
 
 const reportchart =async (req, res) => {
   try {
@@ -89,5 +89,6 @@ const reportchart =async (req, res) => {
 };
 
 module.exports = {
-  reportchart
+  reportchart,
+  reportchartAdmin
 };

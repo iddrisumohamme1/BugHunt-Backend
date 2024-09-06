@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authenticateJWT = require('../middleware/authenticateJWT.js');
-const { getBugs, getBug, createBug, updateBug, deleteBug } = require('../controllers/bug.controller.js');
+const { getAdminBugs, getBug, createBug, updateBug, deleteBug } = require('../controllers/bug.controller.js');
 
-router.get('/', getBugs);
-router.get('/:id', getBug);
+router.get('/',getBug);
+router.get('/Admin',authenticateJWT,getAdminBugs);
 router.post('/', authenticateJWT,createBug);
 router.put('/:id', updateBug);
 router.delete('/:id', deleteBug);

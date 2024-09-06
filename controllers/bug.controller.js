@@ -2,7 +2,7 @@ const Bug = require('../models/bug.models.js');
 const mongoose = require('mongoose');
 
 
-const getBugs = async (req, res) => {
+const getBug = async (req, res) => {
     try {
         const email = req.query.email; // Assuming you're filtering by email
         const bugs = await Bug.find({ reporter: email });
@@ -11,19 +11,44 @@ const getBugs = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-const getBug = async (req, res) => {
+const getAdminBugs = async (req, res) => {
     try {
-        const { id } = req.params;
-        const bug = await Bug.findById(id).populate('assignedTo');
-        if (bug) {
-            res.status(200).json(bug);
-        } else {
-            res.status(404).json({ message: 'Bug not found' });
+        const { filter } = req.query;
+        let query = {};
+
+        // Apply filter
+        if (filter && filter !== 'All') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            switch (filter) {
+                case 'Today':
+                    query.createdAt = { $gte: today };
+                    break;
+                case 'This Week':
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    query.createdAt = { $gte: weekAgo };
+                    break;
+                case 'This Month':
+                    const monthAgo = new Date(today);
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    query.createdAt = { $gte: monthAgo };
+                    break;
+                // Add more cases as needed
+            }
         }
+
+        const bugs = await Bug.find(query)
+            .sort({ createdAt: -1 }); // Sort by creation date, newest first
+
+        res.status(200).json(bugs);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('Error fetching bugs:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 const createBug = async (req, res) => {
     try {
@@ -95,7 +120,7 @@ const deleteBug = async (req, res) => {
 
 
 module.exports = {
-    getBugs,
+    getAdminBugs,
     getBug,
     createBug,
     updateBug,
