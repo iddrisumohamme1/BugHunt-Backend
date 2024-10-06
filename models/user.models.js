@@ -50,8 +50,8 @@ userSchema.statics.createDefaultAdmin = async function() {
         if (!adminExists) {
             const defaultAdmin = new this({
                 firstname: 'Admin',
-                lastname: '1',
-                email: 'admin1@example.com', // Use a valid email format
+                lastname: 'Admin', // Use a meaningful name instead of '1'
+                email: 'admin1@example.com', // Make sure the email is unique
                 password: 'adminpassword123', // Use a secure password
                 role: 'admin'
             });
